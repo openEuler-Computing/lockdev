@@ -3,7 +3,7 @@
 
 Name: 		lockdev
 Version: 	1.0.4
-Release: 	0.29
+Release: 	0.31
 Summary: 	A library for locking devices
 License: 	LGPLv2
 URL: 		https://alioth.debian.org/projects/lockdev/
@@ -65,7 +65,7 @@ getent group lock >/dev/null 2>&1 || groupadd -g 54 -r -f lock >/dev/null 2>&1 |
 %post
 /sbin/ldconfig
 if [ $1 -eq 1 ] ; then
-%tmpfiles_create
+%tmpfiles_create %{_tmpfilesdir}/lockdev.conf
 fi
 
 %postun -p /sbin/ldconfig
@@ -90,5 +90,14 @@ fi
 %{_mandir}/man8/*
 
 %changelog
+* Tue Oct 29 2019 mengxian <mengxian@huawei.com> - 1.0.4-0.31
+- Type:NA
+- ID:NA
+- SUG:NA
+- DESC:Fix last changelog problem which include a macro
+
+* Tue Oct 29 2019 openEuler Buildteam <buildteam@openeuler.org> - 1.0.4-0.30
+- Fix compile problem: add parameter for macro tmpfiles_create
+
 * Mon Aug 19 2019 openEuler Buildteam <buildteam@openeuler.org> - 1.0.4-0.29
 - Package init
