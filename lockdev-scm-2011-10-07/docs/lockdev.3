@@ -1,0 +1,93 @@
+.TH LOCKDEV 3  "26 Dec 1997" "Linux Manpage" "Linux Programmer's Manual"
+.SH NAME
+lockdev, liblockdev, dev_testlock, dev_lock, dev_relock, dev_unlock \- manage device lockfiles
+.SH SYNOPSIS
+.B #include <lockdev.h>
+.sp
+.BI "pid_t dev_testlock( const char * " devname ");"
+.br
+.BI "pid_t dev_lock( const char * " devname ");"
+.br
+.BI "pid_t dev_relock( const char * " devname ", pid_t " pid ");"
+.br
+.BI "pid_t dev_unlock( const char * " devname ", pid_t " pid ");"
+.sp
+.BI "cc [ "flag " ... ] "file " ... -llockdev [ "library " ] "
+.SH DESCRIPTION
+The
+.B lockdev
+functions act on device locks normally located in 
+.B /var/lock .
+The lock is acquired creating a pair of files hardlinked between them
+and named after the device name (as mandated by FSSTND) and the device's
+major and minor numbers (as in SVr4 locks). This permits to circumvent a
+problem using only the FSSTND lock method when the same device exists
+under different names (for convenience or when a device must be
+accessable by more than one group of users).
+.br
+The lock file names are typically in the form
+.B LCK..ttyS1
+and 
+.B LK.000.004.065 ,
+but is provided a way to easily modify them to use the library on
+different architectures. The content of those files is the pid of the
+process who owns the lock.
+.sp
+The 
+.B dev_testlock()
+function simply checks if the device is in some way locked and if the
+owner of the lock is still active (otherwise it removes the lock).
+It recognise a valid lock even if only one of the two lock files exists
+(and is owned by an existing process), thus permitting a safe use of
+this library together with programs using only FSSTND or SVr4 lock
+style.
+.sp
+The 
+.B dev_lock() 
+function first checks if the device is already locked and then tries to
+acquire the lock building the two lock files. First it creates the file
+which name contains the major and minor numbers (in SVr4 style), then it
+creates the file with the device name in its name. This order reduces
+the clashes with other processes trying to lock the same device (even
+with a different name) and using this library. It has no problem with
+processes that uses only the FSSTND algorithm.
+.sp
+The 
+.B dev_relock() 
+function changes the owner of an existing lock; if the pid of the old
+owner is provided, then it checks if the lock was correctly assigned
+(otherwise there is the possibility of a process acquiring a lock which
+was owned by another unrelated process). If the device was not locked,
+locks it.
+.sp
+The 
+.B dev_unlock() 
+function removes the existing locks on the device. If the pid of the
+owner of the lock is provided, then it checks if the lock is assigned
+to that process, avoiding to remove locks assigned to other existing
+processes.
+
+.SH RETURN VALUES
+All the functions in 
+.B lockdev
+library return 
+.B ZERO 
+on successfull completion of the function (dev_testlock returns zero if
+there is no lock on the device), otherwise, if the device is currently
+locked by an existing process, they return the pid of the process owner
+of the lock. They return a negative number when some kind of error
+happens. Actually they all return only (-1).
+
+.SH FILES
+/var/lock/LCK..<device>
+.br
+/var/lock/LK.<devmajor>.<major>.<minor>
+.br
+/usr/lib/liblockdev.so.1
+
+.SH HISTORY
+(c) 1997 by Fabrizio Polacco <fab@prosa.it>.
+.br
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation; version 2 dated June, 1991.

@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include "lockdev.h"
+
+/* ttylock functions swap the real/effective uid/gid for us, so
+ * use access instead of euidaccess.
+ */
+#define LOCKDEV_ACCESS access
+#undef TTYLOCK_USE_HELPER
+#include "lockdev.c"
+
+void
+usage (void)
+{
+	fprintf(stderr, "Usage: %s [-lud] <device>\n", "lockdev");
+	exit(-1);
+}
+
+
+int
+main (int   argc,
+      char *argv[])
+{
+	int i;
+	int fd;
+	char *p = NULL, *dev = NULL, ch;
+
+        /* these have to be open to something */
+	if ((fd = open("/dev/null", 2)) < 0)
+	    exit(-1);
+	dup2(fd, 0);
+	dup2(fd, 1);
+	dup2(fd, 2);
+
+	ch = '\0';
+	for( i = argc - 1; i > 0; i-- ) {
+		p = argv[i];
+		if( *p == '-' ) {
+			switch( *++p ) {
+			case 'l': 
+			case 'u': ch = *p; break;
+			case 'd':
+				liblockdev_incr_debug();
+				break;
+			default: usage(); break;
+			}
+		}
+		else dev = p;
+	}
+	if (dev == NULL)
+	    usage();
+	i = 0;
+	(void) dev_setpid(getppid());
+	switch( ch ) {
+	case 'l':
+		i = dev_lock( dev);
+		break;
+	case 'u':
+		i = dev_unlock(dev, 0);
+		break;
+	default:
+		if (dev)
+			i = dev_testlock(dev);
+		break;
+	}
+
+	/*
+	 * Exit		dev_lock	dev_unlock	dev_testlock
+	 *	  0	OK		OK		not locked
+	 *	  1	locked other	locked other	locked
+	 *	  2	EACCES
+	 *	  3	EROFS
+	 *	  4	EFAULT
+	 *	  5	EINVAL
+	 *	  6	ENAMETOOLONG
+	 *	  7	ENOENT
+	 *	  8	ENOTDIR
+	 *	  9	ENOMEM
+	 *	 10	ELOOP
+	 *	 11	EIO
+	 *	 12	EPERM
+	 *	255	error		error		error
+	 */
+	switch (i) {
+	case -EACCES:	i = 2;	break;
+	case -EROFS:	i = 3;	break;
+	case -EFAULT:	i = 4;	break;
+	case -EINVAL:	i = 5;	break;
+	case -ENAMETOOLONG:	i = 6;	break;
+	case -ENOENT:	i = 7;	break;
+	case -ENOTDIR:	i = 8;	break;
+	case -ENOMEM:	i = 9;	break;
+	case -ELOOP:	i = 10;	break;
+	case -EIO:	i = 11;	break;
+	case -EPERM:	i = 12;	break;
+	default:
+	    if (i < 0) i = 255;
+	    else if (i > 0) 	i = 1;
+	    break;
+	}
+	exit(i);
+}

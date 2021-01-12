@@ -1,0 +1,299 @@
+2006-04-20  Paweł Więcek <coven@debian.org>
+
+	* Version 1.0.3.
+
+	* src/lockdev.c: Updated _dl_filename_1 to distinguish between
+	  character and block devices. Lock file name changes thus from
+	  LCK.012.345 to LCK.C.012.345.
+
+2005-10-03  Roger Leigh  <rleigh@debian.org>
+
+	* Version 1.0.2.
+
+	* LockDev/Makefile.PL: Merge shobs support from the Debian diff.
+
+	* Makefile Merge shobs support from the Debian diff.
+	(tarball): Remove --exclude option which was broken with current
+	versions of GNU tar.
+
+	* src/sample.c (main): Use liblockdev_incr_debug when the "-d"
+	option is used, to fix broken debugging support.
+
+	* src/ttylock.h: Convert K&R C into ISO C89 C.
+
+	* src/lockdev.h: Convert K&R C into ISO C89 C.
+
+	* src/lockdev.c:
+	(General) Replace the use of __linux__ with __GNU_LIBRARY__, and
+	use the GNU libc gnu_dev_major() and gnu_dev_minor() functions
+	rather than kernel macros.
+	(General) Convert K&R C into ISO C89 C.
+	(_dl_filename_1): Remove special casing for CUA devices on Linux
+	systems; these devices have long been deprecated and are no longer
+	available in current kernels.
+	(_dl_filename_2): If a device name has '/' separators in its name,
+	replace them with ':'s.  This is to support devices in
+	subdirectories.
+	(_dl_check_devname): If a device pathname starts with DEV_PATH,
+	e.g. "/dev/", strip off only "/dev/", rather than the entire path.
+	This is to support devices in subdirectories under /dev,
+	e.g. DevFS, udev, devpts and LVM.
+
+2001-05-27  Gergely Nagy  <algernon@debian.org>
+
+	* Rules.mk: extracted from debian/policy
+
+	* debian/rules: updated to new Debian Perl policy; move shared
+	library from /lib to /usr/lib; properly strip binaries; include
+	Section and Priority in the deb package
+
+	* debian/policy: bumped standards-version, added min_perl_policy
+
+	* debian/control: added build-depends, bumped standards-version,
+	and a few cosmetic fixes
+
+	* Makefile (perl-lib): Updated to new Debian Perl policy
+	(tarball): do not include debian/
+
+1999-12-01  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 1.0.0
+
+	* added management of pseudo device /dev/tty , thanx to Alan Cox.
+
+	* added unconditional malloc of supplied device argoment.
+
+	* changed name of the shared lib to end in .so
+
+	* changed Makefile.PL because the perl manpage disappeared.
+
+	* Changed symbols in the API as suggested by Daniel Quinlan and
+	Erik Troan. Changed soname accordingly.
+
+	* Corrected manpages and added LSB proposal (draft 2).
+
+	* corrected cua device management: use linux/major.h to determine
+	the cua major number; conditioned to __linux__
+
+	* Changed LICENSE file to hold the LGPL 2.1
+
+1999-07-19  Raphael Hertzog  <rhertzog@hrnet.fr>
+
+	* Version 0.11.1
+
+	* NMU for the perl upgrade. Closes: #41522
+
+	* Corrected the rules files to conform to perl policy 1.0.1.
+
+	* Compiled with perl-5.005.
+
+	* Corrected the location of the license.
+
+	* Upgraded standards-version to 2.5.1
+
+1999-06-02  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.11
+
+	* Avoided repetute locking of the semaphore.
+
+	* Corrected special case of semaphore misbehaviour (found while
+	crosschecking between two instancies running under gdb).
+
+	* Added modification on-the-fly of major number of device from 4
+	to 5 in case it was referring to one of the 64 cua devices; it now
+	locks the major+minor numbers of the corresponding ttyS
+	device. The name remains unaffected, as it could be an arbitrary
+	name.
+	(Thanx to Daniel Quinlan <quinlan@transmeta.com>)
+
+	* Tryed to use fcntl instead of flock, after suggestion of Daniel
+	Quinlan, to permit use on NFS mounted partitions.  I wasn't able
+	to make it correctly work, so I conditioned the changes and left
+	the code there, for further (future) investigations. Any help
+	highly appreciated.
+
+	* changed third file (LCK..<pid>) to have three dots, and made it
+	stay there, as a quick reference. It doesn't hurt, and shouw the
+	pid with a simple ls -l
+
+	* Added full text of LGPL licence instead of GPL one added in the
+	previous version (oops).
+
+1999-04-08  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.10
+
+	* Added ttylock.h as Compatibility API to AIX. Programs written
+	for that environment can be linked directly to lockdev library.
+	(On AIX the symbols are in libc, so special care should be used)
+
+	* changed location of manpages to /usr/share/man.
+
+	* changed the name of the source to lockdev_0.10.tar.gz
+
+	* changed address of FSF in Copyright file, added the full GPL
+	text as LICENSE (only in the source), corrected name of the
+	mailing list.
+
+	* changed name of changelog, just to make lintian happier.
+
+	* corrected name of docs dir for perl package.
+
+1998-05-18  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.9a
+
+	* Added more tests in postinst of liblockdev0g-dbg, to avoid
+	strange problems encountered by Adam P. Harris (closes: #22565)
+
+1998-05-12  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.9
+
+	* cleaned symlinks in docs dirs.
+
+	* changed libs symlinks from /usr/lib to /lib
+
+	* stripped main shared library.
+
+	* Corrected wrong shlibs dependency (thanx to Hamish Moffatt,
+	closes: #22282).
+
+	* Changed dependency of -dev from libc6 to libc6-dev, thanx to
+	James Troup (closes: #16476).
+
+	* Added -I.. in Makefile.PL to allow compilation of the perl part
+	even when the -dev package isn't installed (thanx to Martin
+	Schulze for the patch) closes: #15834
+
+1997-12-23  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.8
+
+	* updated manpage (degugging section).
+
+	* added environment variable to set debug value, and signals to
+	change those values at runtime (if compiled with -DDEBUG).
+
+	* avoided symlink to /usr/src changing .stab in asm source
+	file (overwritten implicit rule to produce asm source).  Thanx to
+	Martin Schulze <joey> for the help.
+
+	* changed dbg package to install shared debug lib in
+	/usr/lib/debug and profile lib in /usr/lib/profile.
+
+	* splitted debian/rules in included debian/policy
+
+	* cleaned Makefile and changed to build debug shared lib.  Thanx
+	to Yann Dirson.
+
+	* added change in umask value to allow full permissions to lock
+	files.  (this is questionable: would it be better to add a suid
+	program to check and remove dangling locks?)
+
+1997-11-30  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.7
+
+	* cleaned Makefile and debian/rules
+
+	* change in Makefile.PL to allow pristine compilation on new
+	systems
+	(closes: #15834, thanx to Martin Schulze).
+
+	* added -dbg package with debug and profile libs.
+
+	* problem with lenght of dev_t in glibc for printf: cast needed
+	:-)
+
+	* corrected ftp address in copyright file.
+
+1997-10-22  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.6
+
+	* added symlink to dirs in /usr/doc (one dir for all packages),
+	now /usr/doc/liblockdev is a symlink installed by -dev package, as
+	the liblockdev.a and liblockdev.so symlinks.  Instead,
+	lblockdev-perl installs a copy of the docs because it doesn't
+	depend on the run-time binary package (as -dev does).
+
+	* cleaned spreading in the distribution: source and run-time to
+	section 'libs', development into 'devel', perl module into
+	'interpreters' (waiting for a perl section).
+
+	* created extension perl library LockDev:: with manpage
+	LockDev(3pm) and packaged as liblockdev0-perl.
+
+	* moved symlink so.0 -> so.0.6 to runtime package.
+
+	* added unlink of semaphore file (not really needed, just to clean
+	up)
+
+	* corrected error in Synopsis of manpage (oops).
+
+	* cleaned source code: changed ANSI-C definition of functions to
+	K&R, as recommended in GNU coding style (but not for indentation).
+	Added ANSI-C prototypes for internal functions (exported one
+	already have them in .h interface file.
+
+	* cleaned rules file, got rid of unneeded libc5 compatibility.
+
+	* Moved back include of stdio.h from lockdev.h to
+	.c (closes:Bug#14154) Thanx to Juan Cespedes <cespedes@debian.org>
+
+	* Corrected debian/rules to have binary-arch
+	rule (closes:Bug#14062)
+
+1997-09-25  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.5
+
+	* moved to libc6 (glibc2); added a "g" after soname in package
+	name.
+
+	* added rules to build also compatibility libc5 libs.
+
+1997-09-06  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.4
+
+	* Changed priority from extra to optional.
+
+	* cleaned Makefile and added separate static/debug library.
+
+	* Cleaned include file.
+
+	* Added global var liblockdev_debug for debugging level
+
+	* Added 2 functions to set and reset debugging level (only in
+	static lib)
+
+1997-09-05  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.3
+
+	* avoided stripping of static lib (compiled with -DDEBUG)
+
+	* added semaphore lock to avoid race condition in removing stale
+	locks (thanx to Barak Pearlmutter)
+
+	* changed unlink of stale lock to a complex and convoluted way to
+	avoid conflicts between us and another process that doesn't use
+	this library. Still exists the possibility of a conflict between
+	two other processes that don't use this library, but we are safe.
+
+	* cleaned code in lock_dev()
+
+1997-09-04  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.2
+
+	* fixed shared lib links.
+
+1997-09-04  Fabrizio Polacco  <fpolacco@debian.org>
+
+	* Version 0.1
+
+	* Initial Release.
